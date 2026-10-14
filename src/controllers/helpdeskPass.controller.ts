@@ -256,7 +256,17 @@ async function confirmHelpdeskPassGeneration(
             alreadyExists: true,
         };
 
-        return;
+        return NextResponse.json(
+            {
+                success: true,
+                message: result.alreadyExists
+                    ? "Your existing Helpdesk Pass has been recovered successfully."
+                    : "Your Helpdesk Pass has been generated successfully.",
+                helpdeskId: result.helpdeskId,
+                alreadyExists: result.alreadyExists,
+            },
+            { status: 200 }
+        );
     }
 
     // Check candidate IDs before insertion. A unique database

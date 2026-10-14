@@ -536,7 +536,14 @@ async function assignTicket(request: NextRequest) {
     // Avoid creating duplicate activity for the same assignment.
     if (previousAssignedTo === staff._id.toString()) {
         updatedTicket = ticket;
-        return;
+        return NextResponse.json(
+            {
+                success: true,
+                message: "Ticket assignment updated successfully.",
+                ticket: updatedTicket,
+            },
+            { status: 200 }
+        );;
     }
 
     ticket.assignedTo = staff._id;
@@ -569,6 +576,10 @@ async function assignTicket(request: NextRequest) {
         path: "assignedTo",
         select: "_id name email",
     });
+
+    if (!populatedTicket) {
+        throw new ApiError("RECORD_NOT_FOUND");
+    }
 
     return NextResponse.json(
         {
@@ -1755,7 +1766,17 @@ async function assignTicketDepartment(request: NextRequest) {
     if (
         currentDepartmentId === String(department._id)
     ) {
-        return;
+        return NextResponse.json(
+            {
+                success: true,
+                message: "Ticket is already assigned to this department.",
+                data: {
+                    ticketId: currentTicket.ticketId,
+                    assignedDepartment: department,
+                },
+            },
+            { status: 200 }
+        );
     }
 
     currentTicket.assignedDepartment = department._id;
@@ -1791,6 +1812,10 @@ async function assignTicketDepartment(request: NextRequest) {
             select: "name code isActive",
         })
         .lean();
+
+    if (!updatedTicket) {
+        throw new ApiError("RECORD_NOT_FOUND");
+    }
 
     return NextResponse.json(
         {
